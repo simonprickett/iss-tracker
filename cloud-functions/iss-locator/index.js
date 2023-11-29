@@ -52,7 +52,6 @@ functions.http('isslocator', async (req, res) => {
   };
 
   // Reverse geocode the ISS location to get city, country info if possible.
-  // TODO move key to env var.
   apiResponse = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?result_type=country|locality|administrative_area_level_1|natural_feature&language=en_GB&latlng=${response.lat},${response.lon}&key=${process.env.GEOCODER_API_KEY}`);
   const geocodeInfo = await apiResponse.json();
 
