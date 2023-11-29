@@ -70,9 +70,7 @@ functions.http('isslocator', async (req, res) => {
     apiResponse = await fetch(`https://secure.geonames.org/oceanJSON?lat=${response.lat}&lng=${response.lon}&username=${process.env.GEONAMES_USER}`);
     const oceanInfo = await apiResponse.json();
 
-    if (oceanInfo.ocean) {
-      response.ocean = oceanInfo.ocean.name;
-    }
+    if (oceanInfo.ocean) { response.ocean = oceanInfo.ocean.name; }
   } else {
     // Retrieve fields of interest from geocoder response, if present.
     const locality = findAddressComponent(geocodeInfo.results[0].address_components, 'locality');
