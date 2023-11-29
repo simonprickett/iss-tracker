@@ -1,0 +1,23 @@
+{
+  "name": "iss-locator",
+  "version": "0.0.1",
+  "description": "ISS Locator Google Cloud Function",
+  "main": "index.js",
+  "scripts": {
+    "watch": "npm-watch start",
+    "start": "npx functions-framework --target=isslocator --signature-type=http"
+  },
+  "watch": {
+    "start": "*.js"
+  },
+  "author": "Simon Prickett",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "dotenv": "^16.3.1",
+    "haversine": "^1.1.1"
+  },
+  "devDependencies": {
+    "npm-watch": "^0.11.0"
+  }
+}
