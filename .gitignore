@@ -1,0 +1,9 @@
+.DS_Store
+*.bak
+*.swp
+*.tmp
+*.log
+*.pyc
+venv/
+.vscode/
+node_modules/
