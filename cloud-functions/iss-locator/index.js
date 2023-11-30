@@ -82,5 +82,7 @@ functions.http('isslocator', async (req, res) => {
     if (country) { response.country = country; }
   }
 
+  response.timestamp = Date.now();
+
   return res.json(response);
 });
