@@ -29,7 +29,7 @@ display.set_pen(0)
 display.text("88888", TEXT_LEFT_OFFSET, 2, scale=4)
 display.text("miles away", TEXT_LEFT_OFFSET, 32, scale=2)
 display.text("South Yunderup, Australia", TEXT_LEFT_OFFSET, 54, wordwrap=badger2040.WIDTH - MAP_IMAGE_WIDTH - TEXT_LEFT_OFFSET, scale=2)
-display.text("Nov 30 14:50", TEXT_LEFT_OFFSET, 118, scale=1)
+display.text("Nov 30 14:50 UTC", TEXT_LEFT_OFFSET, 118, scale=1)
 
 
 iss_lat = -32.5873782
