@@ -11,6 +11,7 @@ EQUATOR_Y = MAP_IMAGE_HEIGHT // 2
 MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
 MAX_LOCATION_HISTORY = 10
+CLOSE_BY_DISTANCE = 500
 
 # Initialize display.
 display = badger2040.Badger2040()
@@ -95,7 +96,10 @@ def update_iss_position(iss_data):
     display.update()
     
     # Turn the LED on if the ISS is close enough to us, otherwise off.
-    # TODO
+    if iss_data['dist'] <= CLOSE_BY_DISTANCE:
+        display.led(128)
+    else:
+        display.led(0)
     
 # Main program starts here... for now just feed some data in to test display.
 #iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
@@ -107,7 +111,7 @@ def update_iss_position(iss_data):
 #iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 #update_iss_position(iss_data)
 #time.sleep(5)
-iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","region": "Georgia", "country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
+iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 409,"locality": "Atlanta","region": "Georgia", "country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
 #iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
