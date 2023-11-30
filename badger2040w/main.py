@@ -1,6 +1,7 @@
 import badger2040
 import jpegdec
 import json
+import time
 
 MAP_IMAGE_HEIGHT = 128
 MAP_IMAGE_WIDTH = 192
@@ -9,6 +10,7 @@ MAP_TOP_OFFSET = 0
 EQUATOR_Y = MAP_IMAGE_HEIGHT // 2
 MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
+MAX_LOCATION_HISTORY = 10
 
 # Initialize display.
 display = badger2040.Badger2040()
@@ -16,8 +18,13 @@ display.set_update_speed(badger2040.UPDATE_NORMAL)
 display.led(0)
 display.set_font("bitmap8")
 
+# Initialize location history
+location_history = []
+
     
-def update_iss_position(iss_data):    
+def update_iss_position(iss_data):
+    global location_history
+    
     display.clear()
 
     # Load the map.
@@ -68,6 +75,18 @@ def update_iss_position(iss_data):
     iss_y = (round(EQUATOR_Y - equator_offset_px if iss_lat >= 0 else EQUATOR_Y + equator_offset_px)) + MAP_TOP_OFFSET
 
     display.circle(iss_x, iss_y, 4)
+    
+    # Update the previous positions with this one and cap the list size if needed.
+    
+    if len(location_history) == MAX_LOCATION_HISTORY:
+        location_history.pop()
+    
+    # Draw the previous positions as smaller circles.
+    for previous_loc in location_history:
+        display.circle(previous_loc[0], previous_loc[1], 2)
+    
+    # Add the current location to the history.
+    location_history.insert(0, [ iss_x, iss_y ])
 
     # Display when this update was performed.
     display.text(iss_data["updatedAt"], TEXT_LEFT_OFFSET, 118, scale=1)
@@ -75,5 +94,23 @@ def update_iss_position(iss_data):
     # Update the screen with the new information.
     display.update()
     
-iss_data = json.loads('{ "lat": -48.6912, "lon": 140.7159, "dist": 771, "ocean": "Indian Ocean", "units": "mi", "updatedAt": "Nov 30 16:56 UTC", "timestamp": 1701363382170 }')
+    # Turn the LED on if the ISS is close enough to us, otherwise off.
+    # TODO
+    
+# Main program starts here... for now just feed some data in to test display.
+iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
+update_iss_position(iss_data)
+time.sleep(5)
+# TODO FIX DOUBLE COMMA ISSUE
+iss_data = json.loads('{"lat": 16.6401,"lon": -98.3091,"dist": 5597,"region": "Guerrero","country": "Mexico","updatedAt": "Nov 30 17:45 UTC"}')
+update_iss_position(iss_data)
+time.sleep(5)
+# TODO FIX DOUBLE COMMA ISSUE
+iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"region": "Georgia","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
+update_iss_position(iss_data)
+time.sleep(5)
+iss_data = json.loads('{"lat": 42.9715,"lon": -67.008,"dist": 3012,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 17:55 UTC"}')
+update_iss_position(iss_data)
+time.sleep(5)
+iss_data = json.loads('{"lat": 50.4487,"lon": -42.2722,"dist": 1745,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 18:00 UTC"}')
 update_iss_position(iss_data)
