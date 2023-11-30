@@ -12,6 +12,7 @@ MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
 MAX_LOCATION_HISTORY = 10
 CLOSE_BY_DISTANCE = 500
+REFRESH_INTERVAL = 300
 
 # Initialize display.
 display = badger2040.Badger2040()
@@ -102,6 +103,11 @@ def update_iss_position(iss_data):
         display.led(0)
     
 # Main program starts here... for now just feed some data in to test display.
+
+# TODO wifi stuff...
+
+# TODO call the service in a loop...
+
 #iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
 #update_iss_position(iss_data)
 #time.sleep(5)
