@@ -50,11 +50,11 @@ def update_iss_position(iss_data):
         location_text = iss_data["ocean"]
     else:
         if "locality" in iss_data:
-            location_text = f"{iss_data['locality']}, "
+            location_text = f"{iss_data['locality']}"
         if "region" in iss_data:
-            location_text = f"{location_text}, {iss_data['region']}, "
+            location_text = f"{location_text}{', ' if len(location_text) > 0 else ''}{iss_data['region']}"
         if "country" in iss_data:
-            location_text = f"{location_text}, {iss_data['country']}" 
+            location_text = f"{location_text}{', ' if len(location_text) > 0 else ''}{iss_data['country']}" 
         
     if len(location_text) == 0:
         location_text = "Unknown Location"
@@ -101,16 +101,21 @@ def update_iss_position(iss_data):
 iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
-# TODO FIX DOUBLE COMMA ISSUE
 iss_data = json.loads('{"lat": 16.6401,"lon": -98.3091,"dist": 5597,"region": "Guerrero","country": "Mexico","updatedAt": "Nov 30 17:45 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
-# TODO FIX DOUBLE COMMA ISSUE
-iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"region": "Georgia","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
+iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
-iss_data = json.loads('{"lat": 42.9715,"lon": -67.008,"dist": 3012,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 17:55 UTC"}')
+iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","region": "Georgia", "country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
-iss_data = json.loads('{"lat": 50.4487,"lon": -42.2722,"dist": 1745,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 18:00 UTC"}')
+iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 update_iss_position(iss_data)
+time.sleep(5)
+
+#iss_data = json.loads('{"lat": 42.9715,"lon": -67.008,"dist": 3012,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 17:55 UTC"}')
+#update_iss_position(iss_data)
+#time.sleep(5)
+#iss_data = json.loads('{"lat": 50.4487,"lon": -42.2722,"dist": 1745,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 18:00 UTC"}')
+#update_iss_position(iss_data)
