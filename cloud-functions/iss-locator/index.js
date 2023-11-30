@@ -1,3 +1,4 @@
+const dateformat = require('dateformat');
 const functions = require('@google-cloud/functions-framework');
 const haversine = require('haversine');
 
@@ -82,7 +83,9 @@ functions.http('isslocator', async (req, res) => {
     if (country) { response.country = country; }
   }
 
-  response.timestamp = Date.now();
+  rightNow = new Date();
+  response.updatedAt = `${dateformat(rightNow, 'mmm dd HH:MM')} UTC`;
+  response.timestamp = rightNow.getTime();
 
   return res.json(response);
 });
