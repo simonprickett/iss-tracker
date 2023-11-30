@@ -40,7 +40,7 @@ def update_iss_position(iss_data):
     # Display how far away the ISS is.
     # TODO pad with leading 0 to always make it 5 digits.
     display.text(f"{iss_data['dist']:05}", TEXT_LEFT_OFFSET, 2, scale=4)
-    display.text("miles away", TEXT_LEFT_OFFSET, 32, scale=2)
+    display.text("miles away", TEXT_LEFT_OFFSET, 32, scale=1)
     
     # Display the name of the place, region, country or ocean that it's over.
     location_text = ""
@@ -61,7 +61,7 @@ def update_iss_position(iss_data):
     else:
         location_text = location_text.strip(" ,")
     
-    display.text(location_text, TEXT_LEFT_OFFSET, 54, wordwrap=badger2040.WIDTH - MAP_IMAGE_WIDTH - TEXT_LEFT_OFFSET, scale=2)
+    display.text(location_text, TEXT_LEFT_OFFSET, 46, wordwrap=badger2040.WIDTH - MAP_IMAGE_WIDTH - TEXT_LEFT_OFFSET, scale=2)
 
     # Figure out the lat/lon position for the ISS as x/y co-ordinates on the map, taking
     # into account the position of the map on the display.
@@ -89,7 +89,7 @@ def update_iss_position(iss_data):
     location_history.insert(0, [ iss_x, iss_y ])
 
     # Display when this update was performed.
-    display.text(iss_data["updatedAt"], TEXT_LEFT_OFFSET, 118, scale=1)
+    display.text(iss_data["updatedAt"], TEXT_LEFT_OFFSET, 120, scale=1)
 
     # Update the screen with the new information.
     display.update()
@@ -98,21 +98,21 @@ def update_iss_position(iss_data):
     # TODO
     
 # Main program starts here... for now just feed some data in to test display.
-iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
-update_iss_position(iss_data)
-time.sleep(5)
-iss_data = json.loads('{"lat": 16.6401,"lon": -98.3091,"dist": 5597,"region": "Guerrero","country": "Mexico","updatedAt": "Nov 30 17:45 UTC"}')
-update_iss_position(iss_data)
-time.sleep(5)
-iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
-update_iss_position(iss_data)
-time.sleep(5)
+#iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
+#update_iss_position(iss_data)
+#time.sleep(5)
+#iss_data = json.loads('{"lat": 16.6401,"lon": -98.3091,"dist": 5597,"region": "Guerrero","country": "Mexico","updatedAt": "Nov 30 17:45 UTC"}')
+#update_iss_position(iss_data)
+#time.sleep(5)
+#iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
+#update_iss_position(iss_data)
+#time.sleep(5)
 iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","region": "Georgia", "country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
-iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
-update_iss_position(iss_data)
-time.sleep(5)
+#iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
+#update_iss_position(iss_data)
+#time.sleep(5)
 
 #iss_data = json.loads('{"lat": 42.9715,"lon": -67.008,"dist": 3012,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 17:55 UTC"}')
 #update_iss_position(iss_data)
