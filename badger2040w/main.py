@@ -5,14 +5,15 @@ import time
 
 MAP_IMAGE_HEIGHT = 128
 MAP_IMAGE_WIDTH = 192
+MAX_TEXT_WIDTH = 330
 MAP_LEFT_OFFSET = badger2040.WIDTH - MAP_IMAGE_WIDTH
 MAP_TOP_OFFSET = 0
 EQUATOR_Y = MAP_IMAGE_HEIGHT // 2
 MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
-MAX_LOCATION_HISTORY = 10
-CLOSE_BY_DISTANCE = 500
-REFRESH_INTERVAL = 300
+MAX_LOCATION_HISTORY = 10 # TODO move to config file
+CLOSE_BY_DISTANCE = 500 # TODO move to config file
+REFRESH_INTERVAL = 300 # TODO move to config file
 
 # Initialize display.
 display = badger2040.Badger2040()
@@ -52,16 +53,32 @@ def update_iss_position(iss_data):
         location_text = iss_data["ocean"]
     else:
         if "locality" in iss_data:
-            location_text = f"{iss_data['locality']}"
+            location_text = f"{iss_data['locality'].replace('-', ' ').replace('/', ' ')}"
         if "region" in iss_data:
-            location_text = f"{location_text}{', ' if len(location_text) > 0 else ''}{iss_data['region']}"
+            location_text = f"{location_text}{', ' if len(location_text) > 0 else ''}{iss_data['region'].replace('-', ' ').replace('/', ' ')}"
         if "country" in iss_data:
-            location_text = f"{location_text}{', ' if len(location_text) > 0 else ''}{iss_data['country']}" 
+            location_text = f"{location_text}{', ' if len(location_text) > 0 else ''}{iss_data['country'].replace('-', ' ').replace('/', ' ')}" 
         
     if len(location_text) == 0:
         location_text = "Unknown Location"
     else:
         location_text = location_text.strip(" ,")
+
+    # See if the location text needs adjusting to better fit the space.
+    if display.measure_text(location_text, 2) > MAX_TEXT_WIDTH:
+        # The location text is too long, let's first try and remove the region if present.
+        location_parts = location_text.split(', ')
+        if len(location_parts) == 3:
+            # We have locality, region, country - drop the region.
+            location_text = f"{location_parts[0]}, {location_parts[2]}"
+              
+        text_width = display.measure_text(location_text, 2)
+        if text_width > MAX_TEXT_WIDTH:
+            # Taking 1 character to be 6 pixels wide, guesstimate how many
+            # characters we are over length and add in a few to make room
+            # for an ellipsis.
+            slice_off = 0 - (((text_width + 12) - MAX_TEXT_WIDTH) // 6)
+            location_text = f"{location_text[:slice_off].strip(' ')}..."
     
     display.text(location_text, TEXT_LEFT_OFFSET, 46, wordwrap=badger2040.WIDTH - MAP_IMAGE_WIDTH - TEXT_LEFT_OFFSET, scale=2)
 
@@ -117,7 +134,7 @@ def update_iss_position(iss_data):
 #iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 #update_iss_position(iss_data)
 #time.sleep(5)
-iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 409,"locality": "Atlanta","region": "Georgia", "country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
+iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 409,"locality": "Raleigh-Durham","region": "Georgia", "country": "United States of America","updatedAt": "Nov 30 17:50 UTC"}')
 update_iss_position(iss_data)
 time.sleep(5)
 #iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
