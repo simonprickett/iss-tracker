@@ -27,11 +27,7 @@ require('dotenv').config();
 function findAddressComponent(addressComponents, componentToFind) {
   const matches = addressComponents.filter(comp => comp.types.includes(componentToFind));
 
-  if (matches.length > 0) {
-      return matches[0].long_name;
-  }
-
-  return null;
+  return matches.length > 0 ? matches[0].long_name : null;
 }
 
 function formatCountryName(countryName) {
@@ -90,10 +86,14 @@ functions.http('isslocator', async (req, res) => {
 
   if (geocodeInfo.status === 'ZERO_RESULTS') {
     // Try for an ocean name if possible.
-    apiResponse = await fetch(`https://secure.geonames.org/oceanJSON?lat=${response.lat}&lng=${response.lon}&username=${process.env.GEONAMES_USER}`);
-    const oceanInfo = await apiResponse.json();
+    try {
+      apiResponse = await fetch(`https://secure.geonames.org/oceanJSON?lat=${response.lat}&lng=${response.lon}&username=${process.env.GEONAMES_USER}`);
+      const oceanInfo = await apiResponse.json();
 
-    if (oceanInfo.ocean) { response.ocean = oceanInfo.ocean.name; }
+      if (oceanInfo.ocean) { response.ocean = oceanInfo.ocean.name; }
+    } catch (e) {
+      // Unknown, service was down?.
+    }
   } else {
     // Retrieve fields of interest from geocoder response, if present.
     const locality = findAddressComponent(geocodeInfo.results[0].address_components, 'locality');
