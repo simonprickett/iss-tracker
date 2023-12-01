@@ -19,15 +19,20 @@ const COUNTRY_NAME_MAP = {
   'Bosnia and Herzegovina': 'Bosnia Herzegovina',
   'Antigua and Barbuda': 'Antigua & Barbuda',
   'Democratic Republic of the Congo': 'DR Congo',
-  'Republic of the Congo': 'Congo'
+  'Republic of the Congo': 'Congo',
+  'Türkiye': 'Turkiye'
 };
 
 require('dotenv').config();
 
-function findAddressComponent(addressComponents, componentToFind) {
+function findAddressComponent(addressComponents, componentToFind, useShortForm) {
   const matches = addressComponents.filter(comp => comp.types.includes(componentToFind));
 
-  return matches.length > 0 ? matches[0].long_name : null;
+  if (matches.length > 0) {
+    return useShortForm ? matches[0].short_name : matches[0].long_name;
+  }
+
+  return null;
 }
 
 function formatCountryName(countryName) {
@@ -49,7 +54,6 @@ functions.http('isslocator', async (req, res) => {
   }
 
   // Check X-ISS-Locator-Token header value and 403 if missing or wrong.
-  // TODO move secret value into environment variable.
   if (!req.header(SECURITY_HEADER_NAME) || req.header(SECURITY_HEADER_NAME) !== process.env.CLIENT_PASSPHRASE) {
     return res.status(401).send('Not authorized.');
   }
@@ -92,20 +96,23 @@ functions.http('isslocator', async (req, res) => {
 
       if (oceanInfo.ocean) { response.ocean = oceanInfo.ocean.name; }
     } catch (e) {
-      // Unknown, service was down?.
+      // Unknown, service was down?
     }
   } else {
     // Retrieve fields of interest from geocoder response, if present.
     const locality = findAddressComponent(geocodeInfo.results[0].address_components, 'locality');
-    const region = findAddressComponent(geocodeInfo.results[0].address_components, 'administrative_area_level_1');
     const country = findAddressComponent(geocodeInfo.results[0].address_components, 'country');
+
+    // If we have a locality and the country is the USA then let's send the short
+    // name for the region which will be the state name.
+    // TODO: Potentially also Canadian provinces?
+    if (country) { response.country = formatCountryName(country); }
+
+    const region = findAddressComponent(geocodeInfo.results[0].address_components, 'administrative_area_level_1', ('USA' === response.country && locality));
 
     if (locality) { response.locality = locality; }
     if (region) { response.region = region; }
-    if (country) { response.country = formatCountryName(country); }
 
-    // Consider... when country is USA, shorten state names to codes using short_name field.
-    // Potentially also Canadian provinces?
   }
 
   rightNow = new Date();
