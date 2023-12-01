@@ -4,6 +4,24 @@ const haversine = require('haversine');
 
 const SECURITY_HEADER_NAME = 'X-ISS-Locator-Token';
 
+const COUNTRY_NAME_MAP = {
+  'United States': 'USA',
+  'United Arab Emirates': 'UAE',
+  'United Kingdom': 'UK',
+  'Central African Republic': 'C African Rep',
+  'Saint Vincent and the Grenadines': 'St Vincent & Grenadines',
+  'São Tomé and Príncipe': 'Sao Tome & Principe',
+  'Trinidad and Tobago': 'Trinidad & Tobago',
+  'Marshall Islands': 'Marshall Isles',
+  'Saint Kitts and Nevis': 'St Kitts & Nevis',
+  'Saint Lucia': 'St Lucia',
+  'Solomon Islands': 'Solomon Isles',
+  'Bosnia and Herzegovina': 'Bosnia Herzegovina',
+  'Antigua and Barbuda': 'Antigua & Barbuda',
+  'Democratic Republic of the Congo': 'DR Congo',
+  'Republic of the Congo': 'Congo'
+};
+
 require('dotenv').config();
 
 function findAddressComponent(addressComponents, componentToFind) {
@@ -14,6 +32,10 @@ function findAddressComponent(addressComponents, componentToFind) {
   }
 
   return null;
+}
+
+function formatCountryName(countryName) {
+  return COUNTRY_NAME_MAP[countryName] ? COUNTRY_NAME_MAP[countryName] : countryName;
 }
 
 functions.http('isslocator', async (req, res) => {
@@ -80,27 +102,7 @@ functions.http('isslocator', async (req, res) => {
 
     if (locality) { response.locality = locality; }
     if (region) { response.region = region; }
-    if (country) { response.country = country; }
-
-    // Shorten some common country names to save space.  Don't use Google's
-    // provided short names as they are basically country codes.
-    if (response.country === 'United States') { response.country = 'USA'; }
-    // TODO UAE
-    // TODO UK
-    // TODO DR Congo
-    // TODO St Vincent and the Grenadines
-    // TODO Sao Tome and Principe
-    // TODO Trinidad and Tobago
-    // TODO Angigua and Barbuda
-    // TODO Bosnia and Herzegovina
-    // TODO Central African Republic
-    // TODO Czech Republic?
-    // TODO Congo (Congo-Brazzaville?)
-    // TODO Marshall Islands
-    // TODO Check North Korea
-    // TODO Saint Kitts and Nevis
-    // TODO Saint Lucia
-    // TODO Solomon Islands
+    if (country) { response.country = formatCountryName(country); }
 
     // Consider... when country is USA, shorten state names to codes using short_name field.
     // Potentially also Canadian provinces?
