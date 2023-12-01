@@ -81,6 +81,29 @@ functions.http('isslocator', async (req, res) => {
     if (locality) { response.locality = locality; }
     if (region) { response.region = region; }
     if (country) { response.country = country; }
+
+    // Shorten some common country names to save space.  Don't use Google's
+    // provided short names as they are basically country codes.
+    if (response.country === 'United States') { response.country = 'USA'; }
+    // TODO UAE
+    // TODO UK
+    // TODO DR Congo
+    // TODO St Vincent and the Grenadines
+    // TODO Sao Tome and Principe
+    // TODO Trinidad and Tobago
+    // TODO Angigua and Barbuda
+    // TODO Bosnia and Herzegovina
+    // TODO Central African Republic
+    // TODO Czech Republic?
+    // TODO Congo (Congo-Brazzaville?)
+    // TODO Marshall Islands
+    // TODO Check North Korea
+    // TODO Saint Kitts and Nevis
+    // TODO Saint Lucia
+    // TODO Solomon Islands
+
+    // Consider... when country is USA, shorten state names to codes using short_name field.
+    // Potentially also Canadian provinces?
   }
 
   rightNow = new Date();
