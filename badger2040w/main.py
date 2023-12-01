@@ -1,7 +1,11 @@
 import badger2040
+import config
 import jpegdec
 import json
+import network
+import sys
 import time
+import urequests
 
 MAP_IMAGE_HEIGHT = 128
 MAP_IMAGE_WIDTH = 192
@@ -11,9 +15,7 @@ MAP_TOP_OFFSET = 0
 EQUATOR_Y = MAP_IMAGE_HEIGHT // 2
 MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
-MAX_LOCATION_HISTORY = 10 # TODO move to config file
-CLOSE_BY_DISTANCE = 500 # TODO move to config file
-REFRESH_INTERVAL = 300 # TODO move to config file
+
 
 # Initialize display.
 display = badger2040.Badger2040()
@@ -97,7 +99,7 @@ def update_iss_position(iss_data):
     
     # Update the previous positions with this one and cap the list size if needed.
     
-    if len(location_history) == MAX_LOCATION_HISTORY:
+    if len(location_history) == config.MAX_LOCATION_HISTORY:
         location_history.pop()
     
     # Draw the previous positions as smaller circles.
@@ -114,16 +116,48 @@ def update_iss_position(iss_data):
     display.update()
     
     # Turn the LED on if the ISS is close enough to us, otherwise off.
-    if iss_data['dist'] <= CLOSE_BY_DISTANCE:
+    if iss_data['dist'] <= config.CLOSE_BY_DISTANCE:
         display.led(128)
     else:
         display.led(0)
     
 # Main program starts here... for now just feed some data in to test display.
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
 
-# TODO wifi stuff...
+# TODO output something on the screen while trying to connect.
+while not wlan.isconnected() and wlan.status() >= 0:
+    print("Connecting...")
+    time.sleep(0.2)
+    
+# TODO display some feedback on the screen.
+if wlan.status() == network.STAT_GOT_IP:
+    print("Connected")
+elif wlan.status() == network.STAT_WRONG_PASSWORD:
+    print("Wrong password")
+elif wlan.status() == network.STAT_NO_AP_FOUND:
+    print("Wrong SSID")
+else:
+    print("Wifi connection error.")
+    
+if (wlan.status() != network.STAT_GOT_IP):
+    print("Stopping here.")
+    sys.exit(1)
 
-# TODO call the service in a loop...
+# TODO some feedback about loading data the first time?
+while True:
+    # TODO some error handling around this.
+    iss_data = urequests.get(
+        f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
+        headers = {
+            "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
+        }
+    ).json()
+    
+    update_iss_position(iss_data)
+    time.sleep(config.REFRESH_INTERVAL)
+    
 
 #iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
 #update_iss_position(iss_data)
@@ -134,9 +168,9 @@ def update_iss_position(iss_data):
 #iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 #update_iss_position(iss_data)
 #time.sleep(5)
-iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 409,"locality": "Raleigh-Durham","region": "Georgia", "country": "United States of America","updatedAt": "Nov 30 17:50 UTC"}')
-update_iss_position(iss_data)
-time.sleep(5)
+#iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 409,"locality": "Raleigh-Durham","region": "Georgia", "country": "United States of America","updatedAt": "Nov 30 17:50 UTC"}')
+#update_iss_position(iss_data)
+#time.sleep(5)
 #iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
 #update_iss_position(iss_data)
 #time.sleep(5)
