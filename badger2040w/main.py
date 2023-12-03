@@ -1,5 +1,6 @@
 import badger2040
 import config
+import gc
 import jpegdec
 import json
 import network
@@ -9,6 +10,7 @@ import urequests
 
 MAP_IMAGE_HEIGHT = 128
 MAP_IMAGE_WIDTH = 192
+ISS_IMAGE_WIDTH = 203
 MAX_TEXT_WIDTH = 330
 MAP_LEFT_OFFSET = badger2040.WIDTH - MAP_IMAGE_WIDTH
 MAP_TOP_OFFSET = 0
@@ -26,7 +28,34 @@ display.set_font("bitmap8")
 # Initialize location history
 location_history = []
 
+
+# Utility function, displays text horizontally centered.
+def display_centered(text_to_display, y_pos, scale):
+    width = display.measure_text(text_to_display, scale)
+    x_pos = (badger2040.WIDTH - width) // 2
+    display.text(text_to_display, x_pos, y_pos, badger2040.WIDTH, scale)
+    return x_pos
+
+# Load up the jpg file and text for the startup splash screen.
+def prepare_splash_screen():
+    display.clear()
     
+    # Load the image of the ISS.
+    jpg = jpegdec.JPEG(display.display)
+    jpg.open_file("iss.jpg")
+    jpg.decode(0, 0, jpegdec.JPEG_SCALE_FULL)
+    
+    # Draw a blank area to the right of the ISS to make the screen
+    # the same colour.
+    display.set_pen(15)
+    display.rectangle(ISS_IMAGE_WIDTH, 0, badger2040.WIDTH - ISS_IMAGE_WIDTH, badger2040.HEIGHT)
+    
+    # Add some text...
+    display.set_pen(0)
+    display.text("simonprickett.dev", 130, 5, scale=2)
+    
+# Get a new ISS position and associated information from the backend and
+# display it.
 def update_iss_position(iss_data):
     global location_history
     
@@ -43,7 +72,7 @@ def update_iss_position(iss_data):
     display.set_pen(0)
 
     # Display how far away the ISS is.
-    # TODO pad with leading 0 to always make it 5 digits.
+    # Pad with leading 0 to always make it 5 digits.
     display.text(f"{iss_data['dist']:05}", TEXT_LEFT_OFFSET, 2, scale=4)
     display.text("miles away", TEXT_LEFT_OFFSET, 32, scale=1)
     
@@ -121,32 +150,60 @@ def update_iss_position(iss_data):
     else:
         display.led(0)
     
-# Main program starts here... for now just feed some data in to test display.
+# Main program starts here... let's display a splash screen.
+prepare_splash_screen()
+display.update()
+time.sleep(3)
+
+# Attempt to connect to WiFi network.
+# TODO launch an access point if no wifi configured or wifi is misconfigured.
+
+display.text("Connecting...", 160, 100, scale=2)
+display.update()
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
 
-# TODO output something on the screen while trying to connect.
 while not wlan.isconnected() and wlan.status() >= 0:
     print("Connecting...")
     time.sleep(0.2)
-    
-# TODO display some feedback on the screen.
+
+wifi_status_text = ""
+
 if wlan.status() == network.STAT_GOT_IP:
     print("Connected")
+    wifi_status_text = "Connected!"
 elif wlan.status() == network.STAT_WRONG_PASSWORD:
+    wifi_status_text = "Wrong WiFi password."
     print("Wrong password")
 elif wlan.status() == network.STAT_NO_AP_FOUND:
+    wifi_status_text = "Wrong WiFi SSID."
     print("Wrong SSID")
 else:
     print("Wifi connection error.")
+    wifi_status_text = "Unknown WiFi error."
     
+display.set_pen(15)
+display.clear()
+display.set_pen(0)
+display_centered(wifi_status_text, 56, 2)
+display.update()
+
 if (wlan.status() != network.STAT_GOT_IP):
     print("Stopping here.")
     sys.exit(1)
-
-# TODO some feedback about loading data the first time?
+    
+# Let the WiFi connected message show for a moment.  Will actually show a little
+# longer than this as it will stay on the screen while the first ISS position is
+# retriebed from the server.
+time.sleep(2)
+    
+# Main loop - basically get the ISS position and other information periodically
+# from the backend and display it.
 while True:
+    # A little bit of manual memory management just in case.
+    gc.collect()
+
     # TODO some error handling around this.
     iss_data = urequests.get(
         f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
@@ -158,25 +215,3 @@ while True:
     update_iss_position(iss_data)
     time.sleep(config.REFRESH_INTERVAL)
     
-
-#iss_data = json.loads('{"lat": 1.756,"lon": -109.3535,"dist": 6871,"ocean": "North Pacific Ocean","updatedAt": "Nov 30 17:40 UTC"}')
-#update_iss_position(iss_data)
-#time.sleep(5)
-#iss_data = json.loads('{"lat": 16.6401,"lon": -98.3091,"dist": 5597,"region": "Guerrero","country": "Mexico","updatedAt": "Nov 30 17:45 UTC"}')
-#update_iss_position(iss_data)
-#time.sleep(5)
-#iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"locality": "Atlanta","country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
-#update_iss_position(iss_data)
-#time.sleep(5)
-#iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 409,"locality": "Raleigh-Durham","region": "Georgia", "country": "United States of America","updatedAt": "Nov 30 17:50 UTC"}')
-#update_iss_position(iss_data)
-#time.sleep(5)
-#iss_data = json.loads('{"lat": 31.3806,"lon": -84.438,"dist": 4256,"country": "United States","updatedAt": "Nov 30 17:50 UTC"}')
-#update_iss_position(iss_data)
-#time.sleep(5)
-
-#iss_data = json.loads('{"lat": 42.9715,"lon": -67.008,"dist": 3012,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 17:55 UTC"}')
-#update_iss_position(iss_data)
-#time.sleep(5)
-#iss_data = json.loads('{"lat": 50.4487,"lon": -42.2722,"dist": 1745,"ocean": "North Atlantic Ocean","updatedAt": "Nov 30 18:00 UTC"}')
-#update_iss_position(iss_data)
