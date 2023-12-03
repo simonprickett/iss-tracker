@@ -59,6 +59,17 @@ def prepare_splash_screen():
 def update_iss_position(iss_data):
     global location_history
     
+    # If we got an error, just display the error message over whatever is there already.
+    if "error" in iss_data:
+        # Erase any previous timetamp area and display an error message.
+        display.set_pen(15)
+        display.rectangle(0, 119, badger2040.WIDTH, badger2040.HEIGHT)
+        display.set_pen(0)
+        display.text("Network Error.", TEXT_LEFT_OFFSET, 120, scale=1)
+        display.update()
+        return
+
+    # No error, get on with displaying the info.
     display.clear()
 
     # Load the map.
@@ -140,16 +151,17 @@ def update_iss_position(iss_data):
 
     # Display when this update was performed.
     display.text(iss_data["updatedAt"], TEXT_LEFT_OFFSET, 120, scale=1)
-
-    # Update the screen with the new information.
-    display.update()
     
     # Turn the LED on if the ISS is close enough to us, otherwise off.
     if iss_data['dist'] <= config.CLOSE_BY_DISTANCE:
         display.led(128)
     else:
         display.led(0)
-    
+            
+    # Update the screen with the new information.
+    display.update()
+
+
 # Main program starts here... let's display a splash screen.
 prepare_splash_screen()
 display.update()
@@ -204,14 +216,17 @@ while True:
     # A little bit of manual memory management just in case.
     gc.collect()
 
-    # TODO some error handling around this.
-    iss_data = urequests.get(
-        f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
-        headers = {
-            "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
-        }
-    ).json()
+    try:
+        iss_data = urequests.get(
+            f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
+            headers = {
+                "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
+            }
+        ).json()
     
+    except:
+        iss_data = { "error": True }
+        
     update_iss_position(iss_data)
     time.sleep(config.REFRESH_INTERVAL)
     
