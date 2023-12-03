@@ -1,7 +1,7 @@
 # How many previous ISS locations to display.
 MAX_LOCATION_HISTORY=10
 # How close in miles does the ISS need to be to turn the light on?
-CLOSE_BY_DISTANCE=500
+CLOSE_BY_DISTANCE=1000
 # How often in seconds to retrieve a new ISS position from the internet.
 REFRESH_INTERVAL=300
 # Latitude and longitude for where you are.
