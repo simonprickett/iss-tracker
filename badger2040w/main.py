@@ -201,14 +201,16 @@ display.set_pen(0)
 display_centered(wifi_status_text, 56, 2)
 display.update()
 
+# Let the WiFi status message show for a moment.  Will actually show a little
+# longer than this as it will stay on the screen while the first ISS position is
+# retrieved from the server.
+time.sleep(2)
+
 if (wlan.status() != network.STAT_GOT_IP):
     print("Stopping here.")
     sys.exit(1)
     
-# Let the WiFi connected message show for a moment.  Will actually show a little
-# longer than this as it will stay on the screen while the first ISS position is
-# retriebed from the server.
-time.sleep(2)
+
     
 # Main loop - basically get the ISS position and other information periodically
 # from the backend and display it.
