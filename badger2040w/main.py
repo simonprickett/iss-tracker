@@ -4,6 +4,7 @@ import gc
 import jpegdec
 import json
 import network
+import os
 import sys
 import time
 import urequests
@@ -17,6 +18,12 @@ MAP_TOP_OFFSET = 0
 EQUATOR_Y = MAP_IMAGE_HEIGHT // 2
 MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
+
+# WiFi Access Point constants.
+AP_NAME = "ISSTracker"
+AP_DOMAIN = "isstracker.net"
+TEMPLATE_PATH = "templates"
+WIFI_FILE = "wifi.json"
 
 
 # Initialize display.
@@ -35,6 +42,10 @@ def display_centered(text_to_display, y_pos, scale):
     x_pos = (badger2040.WIDTH - width) // 2
     display.text(text_to_display, x_pos, y_pos, badger2040.WIDTH, scale)
     return x_pos
+
+# Expose an access point allowing the user to configure wifi and other details.
+def setup_mode():
+    print("TODO Setup mode")
 
 # Load up the jpg file and text for the startup splash screen.
 def prepare_splash_screen():
@@ -167,68 +178,77 @@ prepare_splash_screen()
 display.update()
 time.sleep(3)
 
-# Attempt to connect to WiFi network.
-# TODO launch an access point if no wifi configured or wifi is misconfigured.
-
-display.text("Connecting...", 160, 100, scale=2)
-display.update()
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
-
-while not wlan.isconnected() and wlan.status() >= 0:
-    print("Connecting...")
-    time.sleep(0.2)
-
-wifi_status_text = ""
-
-if wlan.status() == network.STAT_GOT_IP:
-    print("Connected")
-    wifi_status_text = "Connected!"
-elif wlan.status() == network.STAT_WRONG_PASSWORD:
-    wifi_status_text = "Wrong WiFi password."
-    print("Wrong password")
-elif wlan.status() == network.STAT_NO_AP_FOUND:
-    wifi_status_text = "Wrong WiFi SSID."
-    print("Wrong SSID")
-else:
-    print("Wifi connection error.")
-    wifi_status_text = "Unknown WiFi error."
+# First, see if there's a configured WiFi network.
+try:
+    os.stat(WIFI_FILE)
     
-display.set_pen(15)
-display.clear()
-display.set_pen(0)
-display_centered(wifi_status_text, 56, 2)
-display.update()
+    # File was found, read the configuration and try to connect.
+    with open(WIFI_FILE) as f:
+        wifi_credentials = json.load(f)
 
-# Let the WiFi status message show for a moment.  Will actually show a little
-# longer than this as it will stay on the screen while the first ISS position is
-# retrieved from the server.
-time.sleep(2)
+        display.text("Connecting...", 160, 100, scale=2)
+        display.update()
+        wlan = network.WLAN(network.STA_IF)
+        wlan.active(True)
+        # TODO swap this with the details from the file... wifi_credentials...
+        wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
 
-if (wlan.status() != network.STAT_GOT_IP):
-    print("Stopping here.")
-    sys.exit(1)
-    
+        while not wlan.isconnected() and wlan.status() >= 0:
+            print("Connecting...")
+            time.sleep(0.2)
 
-    
-# Main loop - basically get the ISS position and other information periodically
-# from the backend and display it.
-while True:
-    # A little bit of manual memory management just in case.
-    gc.collect()
+        wifi_status_text = ""
 
-    try:
-        iss_data = urequests.get(
-            f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
-            headers = {
-                "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
-            }
-        ).json()
-    
-    except:
-        iss_data = { "error": True }
+        if wlan.status() == network.STAT_GOT_IP:
+            print("Connected")
+            wifi_status_text = "Connected!"
+        elif wlan.status() == network.STAT_WRONG_PASSWORD:
+            wifi_status_text = "Wrong WiFi password."
+            print("Wrong password")
+        elif wlan.status() == network.STAT_NO_AP_FOUND:
+            wifi_status_text = "Wrong WiFi SSID."
+            print("Wrong SSID")
+        else:
+            print("Wifi connection error.")
+            wifi_status_text = "Unknown WiFi error."
+
+
+        display.set_pen(15)
+        display.clear()
+        display.set_pen(0)
+        display_centered(wifi_status_text, 56, 2)
+        display.update()
+
+        # Let the WiFi status message show for a moment.  Will actually show a little
+        # longer than this as it will stay on the screen while the first ISS position is
+        # retrieved from the server.
+        time.sleep(2)
         
-    update_iss_position(iss_data)
-    time.sleep(config.REFRESH_INTERVAL)
-    
+        if (wlan.status() != network.STAT_GOT_IP):
+            print("Stopping here.")
+            sys.exit(1)    
+   
+        # Main loop - basically get the ISS position and other information periodically
+        # from the backend and display it.
+        while True:
+            # A little bit of manual memory management just in case.
+            gc.collect()
+
+            try:
+                iss_data = urequests.get(
+                    f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
+                    headers = {
+                        "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
+                    }
+                ).json()
+            
+            except:
+                iss_data = { "error": True }
+                
+            update_iss_position(iss_data)
+            time.sleep(config.REFRESH_INTERVAL)
+                
+except Exception:
+    # Either no wifi configuration file found, or something went wrong, 
+    # so go into setup mode.
+    setup_mode()
