@@ -11,4 +11,6 @@ USER_LONGITUDE=-1.1616151
 ISS_SERVICE_URL="YOUR CLOUD FUNCTION URL HERE"
 # Passphrase for the ISS information service.
 ISS_SERVICE_PASSPHRASE="YOUR CLOUD FUNCTION ACCESS TOKEN HERE"
-
+# Initial access point name and domain
+AP_NAME = "ISSTracker"
+AP_DOMAIN = "isstracker.net"

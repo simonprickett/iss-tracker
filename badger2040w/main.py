@@ -3,11 +3,16 @@ import config
 import gc
 import jpegdec
 import json
+import machine
 import network
 import os
 import sys
 import time
 import urequests
+import _thread
+
+from phew import access_point, connect_to_wifi, is_connected_to_wifi, dns, server
+from phew.template import render_template
 
 MAP_IMAGE_HEIGHT = 128
 MAP_IMAGE_WIDTH = 192
@@ -18,12 +23,8 @@ MAP_TOP_OFFSET = 0
 EQUATOR_Y = MAP_IMAGE_HEIGHT // 2
 MERIDIAN_X = MAP_IMAGE_WIDTH // 2
 TEXT_LEFT_OFFSET = 2
-
-# WiFi Access Point constants.
-AP_NAME = "ISSTracker"
-AP_DOMAIN = "isstracker.net"
-TEMPLATE_PATH = "templates"
 WIFI_FILE = "wifi.json"
+TEMPLATE_PATH = "templates"
 
 
 # Initialize display.
@@ -36,6 +37,12 @@ display.set_font("bitmap8")
 location_history = []
 
 
+# Reboot the system.
+def machine_reset():
+    time.sleep(1)
+    print("Resetting...")
+    machine.reset()
+
 # Utility function, displays text horizontally centered.
 def display_centered(text_to_display, y_pos, scale):
     width = display.measure_text(text_to_display, scale)
@@ -45,7 +52,40 @@ def display_centered(text_to_display, y_pos, scale):
 
 # Expose an access point allowing the user to configure wifi and other details.
 def setup_mode():
-    print("TODO Setup mode")
+    print("Setup mode")
+    # TODO Put something on the screen to tell the user what to do!
+    
+    def ap_index(request):
+        if request.headers.get("host").lower() != config.AP_DOMAIN.lower():
+            return render_template(f"{TEMPLATE_PATH}/redirect.html", domain = config.AP_DOMAIN.lower())
+
+        return render_template(f"{TEMPLATE_PATH}/index.html")
+
+    def ap_configure(request):
+        print("Saving wifi credentials...")
+
+        with open(WIFI_FILE, "w") as f:
+            json.dump(request.form, f)
+            f.close()
+
+        # Reboot from new thread after we have responded to the user.
+        _thread.start_new_thread(machine_reset, ())
+        return render_template(f"{TEMPLATE_PATH}/configured.html", ssid = request.form["ssid"])
+        
+    def ap_catch_all(request):
+        if request.headers.get("host") != config.AP_DOMAIN:
+            return render_template(f"{TEMPLATE_PATH}/redirect.html", domain = config.AP_DOMAIN)
+
+        return "Not found.", 404
+
+    server.add_route("/", handler = ap_index, methods = ["GET"])
+    server.add_route("/configure", handler = ap_configure, methods = ["POST"])
+    server.set_callback(ap_catch_all)
+
+    ap = access_point(config.AP_NAME)
+    ip = ap.ifconfig()[0]
+    dns.run_catchall(ip)
+    server.run()
 
 # Load up the jpg file and text for the startup splash screen.
 def prepare_splash_screen():
