@@ -190,8 +190,7 @@ try:
         display.update()
         wlan = network.WLAN(network.STA_IF)
         wlan.active(True)
-        # TODO swap this with the details from the file... wifi_credentials...
-        wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
+        wlan.connect(wifi_credentials["ssid"], wifi_credentials["password"])
 
         while not wlan.isconnected() and wlan.status() >= 0:
             print("Connecting...")
