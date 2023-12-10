@@ -230,53 +230,64 @@ try:
     os.stat(WIFI_FILE)
     
     # File was found, read the configuration and try to connect.
-    with open(WIFI_FILE) as f:
-        wifi_credentials = json.load(f)
+    f = open(WIFI_FILE, "r")
+    wifi_credentials = json.load(f)
+    f.close()
+    
+    display.text("Connecting...", 160, 100, scale=2)
+    display.update()
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(wifi_credentials["ssid"], wifi_credentials["password"])
 
-        display.text("Connecting...", 160, 100, scale=2)
-        display.update()
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        wlan.connect(wifi_credentials["ssid"], wifi_credentials["password"])
+    while not wlan.isconnected() and wlan.status() >= 0:
+        print("Connecting...")
+        time.sleep(0.2)
 
-        while not wlan.isconnected() and wlan.status() >= 0:
-            print("Connecting...")
-            time.sleep(0.2)
+    wifi_status_text = ""
 
-        wifi_status_text = ""
-
-        if wlan.status() == network.STAT_GOT_IP:
-            print("Connected")
-            wifi_status_text = "Connected!"
-        elif wlan.status() == network.STAT_WRONG_PASSWORD:
-            wifi_status_text = "Wrong WiFi password."
-            print("Wrong password")
-        elif wlan.status() == network.STAT_NO_AP_FOUND:
-            wifi_status_text = "Wrong WiFi SSID."
-            print("Wrong SSID")
-        else:
-            print("Wifi connection error.")
-            wifi_status_text = "Unknown WiFi error."
+    if wlan.status() == network.STAT_GOT_IP:
+        print("Connected")
+        wifi_status_text = "Connected!"
+    elif wlan.status() == network.STAT_WRONG_PASSWORD:
+        wifi_status_text = "Wrong WiFi password."
+        print("Wrong password")
+    elif wlan.status() == network.STAT_NO_AP_FOUND:
+        wifi_status_text = "Wrong WiFi SSID."
+        print("Wrong SSID")
+    else:
+        print("Wifi connection error.")
+        wifi_status_text = "Unknown WiFi error."
 
 
-        display.set_pen(15)
-        display.clear()
-        display.set_pen(0)
-        display_centered(wifi_status_text, 56, 2)
-        display.update()
+    display.set_pen(15)
+    display.clear()
+    display.set_pen(0)
+    display_centered(wifi_status_text, 56, 2)
+    display.update()
 
-        # Let the WiFi status message show for a moment.  Will actually show a little
-        # longer than this as it will stay on the screen while the first ISS position is
-        # retrieved from the server.
-        time.sleep(2)
+    # Let the WiFi status message show for a moment.  Will actually show a little
+    # longer than this as it will stay on the screen while the first ISS position is
+    # retrieved from the server.
+    time.sleep(2)
+    
+    if (wlan.status() != network.STAT_GOT_IP):
+        print("Stopping here.")
+        sys.exit(1)    
+
+    # Main loop - basically get the ISS position and other information periodically
+    # from the backend and display it.
+    last_updated = 0
+    
+    while True:
+        # Check for the reset key press.
+        if display.pressed(badger2040.BUTTON_A) and display.pressed(badger2040.BUTTON_C):
+            print("Deleted wifi.json, will reboot.")
+            os.remove(WIFI_FILE)
+            machine_reset()
         
-        if (wlan.status() != network.STAT_GOT_IP):
-            print("Stopping here.")
-            sys.exit(1)    
-   
-        # Main loop - basically get the ISS position and other information periodically
-        # from the backend and display it.
-        while True:
+        # Is it time to run the update?
+        if last_updated == 0 or time.ticks_diff(time.ticks_ms(), last_updated) >= (config.REFRESH_INTERVAL * 1000):
             # A little bit of manual memory management just in case.
             gc.collect()
 
@@ -287,13 +298,15 @@ try:
                         "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
                     }
                 ).json()
-            
+        
             except:
                 iss_data = { "error": True }
-                
+            
             update_iss_position(iss_data)
-            time.sleep(config.REFRESH_INTERVAL)
-                
+            last_updated = time.ticks_ms()
+        
+        time.sleep(0.2)
+                            
 except Exception:
     # Either no wifi configuration file found, or something went wrong, 
     # so go into setup mode.
