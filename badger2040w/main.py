@@ -53,7 +53,12 @@ def display_centered(text_to_display, y_pos, scale):
 # Expose an access point allowing the user to configure wifi and other details.
 def setup_mode():
     print("Setup mode")
-    # TODO Put something on the screen to tell the user what to do!
+    display.set_pen(15)
+    display.clear()
+    display.set_pen(0)
+    display_centered("SETUP MODE", 10, 2)
+    display_centered("Connect to WiFi network", 35, 2)
+    display_centered(config.AP_NAME, 70, 3)
     
     def ap_index(request):
         if request.headers.get("host").lower() != config.AP_DOMAIN.lower():
@@ -85,6 +90,8 @@ def setup_mode():
     ap = access_point(config.AP_NAME)
     ip = ap.ifconfig()[0]
     dns.run_catchall(ip)
+    
+    display.update()
     server.run()
 
 # Load up the jpg file and text for the startup splash screen.
