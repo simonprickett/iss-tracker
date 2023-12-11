@@ -25,6 +25,8 @@ const COUNTRY_NAME_MAP = {
 
 require('dotenv').config();
 
+const CLIENT_PASSPHRASES = process.env.CLIENT_PASSPHRASES.split('|')
+
 function findAddressComponent(addressComponents, componentToFind, useShortForm) {
   const matches = addressComponents.filter(comp => comp.types.includes(componentToFind));
 
@@ -54,7 +56,7 @@ functions.http('isslocator', async (req, res) => {
   }
 
   // Check X-ISS-Locator-Token header value and 403 if missing or wrong.
-  if (!req.header(SECURITY_HEADER_NAME) || req.header(SECURITY_HEADER_NAME) !== process.env.CLIENT_PASSPHRASE) {
+  if (!req.header(SECURITY_HEADER_NAME) || ! CLIENT_PASSPHRASES.includes(req.header(SECURITY_HEADER_NAME))) {
     return res.status(401).send('Not authorized.');
   }
 
