@@ -34,7 +34,7 @@ First, delete all existing files from your Badger 2040w.  Then copy all of the f
 
 ### Configuration
 
-Edit the copy of `config.py` that is on yuour device.  Change the following lines:
+Edit the copy of `config.py` that is on your device.  Change the following lines:
 
 ```
 ISS_SERVICE_URL="YOUR CLOUD FUNCTION URL HERE"
