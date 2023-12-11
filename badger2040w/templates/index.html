@@ -8,29 +8,71 @@
     <body>
         <div class="page">
             <h1>ISS Tracker Setup</h1>
-            <p>Let&apos;s get your tracker connected to your WiFi network and tell it where you are.</p>
-            <form class="pure-form pure-form-stacked" action="/configure" method="POST" autocomplete="off" autocapitalize="none">
+            <p>Let&apos;s get your tracker connected to a WiFi network and tell it where you are.</p>
+            <form class="pure-form pure-form-stacked" action="/configure" onsubmit="return validateForm(this);" method="POST" autocomplete="off" autocapitalize="none">
                 <fieldset>
                     <legend>WiFi</legend>
                     <p>You&apos;ll need your network name or SSID and password.</p>
                     <p><b>These are case sensitive, so be sure to enter them correctly.</b></p>
                     <label for="ssid">SSID:</label>
-                    <input type="text" id="ssid" name="ssid" placeholder="WiFi SSID">
+                    <input type="text" id="ssid" name="ssid" placeholder="WiFi SSID" required>
+                    <span class="pure-form-message">This is a required field.</span>
                     <label for="password">Password:</label>
-                    <input type="text" id="password" name="password" placeholder="WiFi Password">
+                    <input type="text" id="password" name="password" placeholder="WiFi Password" required>
+                    <span class="pure-form-message">This is a required field.</span>
                 </fieldset>
                 <fieldset>
                     <legend>Your Location</legend>
-                    <p>Tell your tracker where you are, so that it can accurately work out how far away the Space Station is.</p>
-                    <p>You&apos;ll need your location as a pair of numbers with as much accuracy as you can provide.</p>
+                    <p>Tell your tracker where you are, so that it can work out how far away the Space Station is.</p>
+                    <p>You&apos;ll need your latitude/longitude location with as much accuracy as you can provide.</p>
                     <p>The example values below are for {{loc}}.</p>
-                    <label for="lat">Latitude:</label><br>
-                    <input type="text" id="lat" name="lat" value="{{lat}}"><br>
-                    <label for="lng">Longitude:</label><br>
-                    <input type="text" id="lng" name="lng" value="{{lng}}"><br><br>
+                    <label for="lat">Latitude:</label>
+                    <input type="text" id="lat" name="lat" value="{{lat}}" pattern="-?\d{1,3}\.\d+" required>
+                    <span class="pure-form-message">Latitude is between -90 and 90.</span>
+                    <label for="lng">Longitude:</label>
+                    <input type="text" id="lng" name="lng" value="{{lng}}" pattern="-?\d{1,3}\.\d+" required>
+                    <span class="pure-form-message">Longitude is between -180 and 180.</span>
                     <button type="submit" class="pure-button pure-button-primary">Save Settings</button>
                 </fieldset>
             </form>
         </div>
+        <script>
+            function validateForm(form) {
+                // The ssid field must contain something.
+                if (form.ssid.value.trim() === '') {
+                    form.ssid.focus();
+                    return false;
+                }
+                
+                // The password field must contain something.
+                if (form.password.value.trim() === '') {
+                    form.password.focus();
+                    return false;
+                }
+
+                // The lat field must contain a floating point number in the range -90 to +90 containing precisely zero or one '.'.
+                if (form.lat.value.trim().split('.').length > 2) {
+                    form.lat.focus();
+                    return false;
+                }
+                if (parseFloat(form.lat.value.trim()) > 90 || parseFloat(form.lat.value.trim()) < -90) {
+                    form.lat.focus();
+                    return false;
+                }
+                
+                // The lng field must contain a floating point number in the range -180 to 180 containing precisely zero or one '.'.
+                if (form.lng.value.trim().split('.').length > 2) {
+                    form.lng.focus();
+                    return false;
+                }
+                if (parseFloat(form.lng.value.trim()) > 180 || parseFloat(form.lng.value.trim()) < -180) {
+                    form.lng.focus();
+                    return false;
+                }
+                
+                // Form has validated OK.
+                return true;
+            }
+        </script>
     </body>
 </html>
