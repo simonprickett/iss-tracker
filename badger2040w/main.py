@@ -264,16 +264,27 @@ try:
     display.clear()
     display.set_pen(0)
     display_centered(wifi_status_text, 56, 2)
+    
+    if wlan.status() != network.STAT_GOT_IP:
+        display_centered("Press A and C buttons to reset.", 85, 2)
+        
     display.update()
+    
+    # Bad WiFi configuration, so wait for them to press A&C then reboot.
+    if (wlan.status() != network.STAT_GOT_IP):
+        print("Deleted wifi.json, waiting to reboot.")
+        os.remove(WIFI_FILE)
+        
+        while True:
+            if display.pressed(badger2040.BUTTON_A) and display.pressed(badger2040.BUTTON_C):
+                machine_reset()
+                
+            time.sleep(0.2)            
 
     # Let the WiFi status message show for a moment.  Will actually show a little
     # longer than this as it will stay on the screen while the first ISS position is
     # retrieved from the server.
     time.sleep(2)
-    
-    if (wlan.status() != network.STAT_GOT_IP):
-        print("Stopping here.")
-        sys.exit(1)    
 
     # Main loop - basically get the ISS position and other information periodically
     # from the backend and display it.
