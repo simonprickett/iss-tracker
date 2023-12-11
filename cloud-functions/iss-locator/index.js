@@ -116,7 +116,8 @@ functions.http('isslocator', async (req, res) => {
   }
 
   rightNow = new Date();
-  response.updatedAt = `${dateformat(rightNow, 'mmm dd HH:MM')} UTC`;
+  // Mon 11 Dec 8:12am UTC
+  response.updatedAt = `${dateformat(rightNow, 'ddd dd mmm h:MMtt')} UTC`;
   response.timestamp = rightNow.getTime();
 
   return res.json(response);
