@@ -4,9 +4,10 @@ MAX_LOCATION_HISTORY=15
 CLOSE_BY_DISTANCE=1000
 # How often in seconds to retrieve a new ISS position from the internet.
 REFRESH_INTERVAL=300
-# Latitude and longitude for where you are.
-USER_LATITUDE=52.9676828
-USER_LONGITUDE=-1.1616151
+# Default lat/long values and place name.
+DEFAULT_LATITUDE=52.953384
+DEFAULT_LONGITUDE=-1.1505282
+DEFAULT_PLACE="Nottingham England"
 # Where to get the ISS information from.
 ISS_SERVICE_URL="YOUR CLOUD FUNCTION URL HERE"
 # Passphrase for the ISS information service.

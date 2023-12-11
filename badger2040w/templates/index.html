@@ -3,17 +3,34 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>ISS Tracker</title>
+        {{render_template("templates/styles.html")}}
     </head>
     <body>
-        <h1>ISS Tracker Setup</h1>
-        <p>Let&apos;s get your tracker connected to your WiFi network.  You&apos;ll need your network name or SSID and password.</p>
-        <p><b>These are case sensitive, so be sure to enter them correctly.</b></p>
-        <form action="/configure" method="POST" autocomplete="off" autocapitalize="none">
-            <label for="ssid">SSID:</label><br>
-            <input type="text" id="ssid" name="ssid"><br>
-            <label for="password">Password:</label><br>
-            <input type="text" id="password" name="password"><br><br>
-            <button>Save</button>
-        </form>
+        <div class="page">
+            <h1>ISS Tracker Setup</h1>
+            <p>Let&apos;s get your tracker connected to your WiFi network and tell it where you are.</p>
+            <form class="pure-form pure-form-stacked" action="/configure" method="POST" autocomplete="off" autocapitalize="none">
+                <fieldset>
+                    <legend>WiFi</legend>
+                    <p>You&apos;ll need your network name or SSID and password.</p>
+                    <p><b>These are case sensitive, so be sure to enter them correctly.</b></p>
+                    <label for="ssid">SSID:</label>
+                    <input type="text" id="ssid" name="ssid" placeholder="WiFi SSID">
+                    <label for="password">Password:</label>
+                    <input type="text" id="password" name="password" placeholder="WiFi Password">
+                </fieldset>
+                <fieldset>
+                    <legend>Your Location</legend>
+                    <p>Tell your tracker where you are, so that it can accurately work out how far away the Space Station is.</p>
+                    <p>You&apos;ll need your location as a pair of numbers with as much accuracy as you can provide.</p>
+                    <p>The example values below are for {{loc}}.</p>
+                    <label for="lat">Latitude:</label><br>
+                    <input type="text" id="lat" name="lat" value="{{lat}}"><br>
+                    <label for="lng">Longitude:</label><br>
+                    <input type="text" id="lng" name="lng" value="{{lng}}"><br><br>
+                    <button type="submit" class="pure-button pure-button-primary">Save Settings</button>
+                </fieldset>
+            </form>
+        </div>
     </body>
 </html>

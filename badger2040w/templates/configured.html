@@ -2,10 +2,13 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Wifi Configured</title>
+        <title>Settings Saved!</title>
+        {{render_template("templates/styles.html")}}
     </head>
     <body>
-        <h1>Wifi Configured</h1>
-        <p>The ISS Tracker will now reboot and attempt to connect to the &quot;{{ssid}}&quot; wireless network...</p>
+        <div class="page">
+            <h1>Settings Saved!</h1>
+            <p>The ISS Tracker will now reboot and attempt to connect to the &quot;{{ssid}}&quot; wireless network...</p>
+        </div>
     </body>
 </html>

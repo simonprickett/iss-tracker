@@ -64,7 +64,7 @@ def setup_mode():
         if request.headers.get("host").lower() != config.AP_DOMAIN.lower():
             return render_template(f"{TEMPLATE_PATH}/redirect.html", domain = config.AP_DOMAIN.lower())
 
-        return render_template(f"{TEMPLATE_PATH}/index.html")
+        return render_template(f"{TEMPLATE_PATH}/index.html", lat = str(config.DEFAULT_LATITUDE), lng = str(config.DEFAULT_LONGITUDE), loc = config.DEFAULT_PLACE)
 
     def ap_configure(request):
         print("Saving wifi credentials...")
@@ -293,7 +293,7 @@ try:
 
             try:
                 iss_data = urequests.get(
-                    f"{config.ISS_SERVICE_URL}?lat={config.USER_LATITUDE}&lng={config.USER_LONGITUDE}",
+                    f"{config.ISS_SERVICE_URL}?lat={wifi_credentials['lat']}&lng={wifi_credentials['lng']}",
                     headers = {
                         "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
                     }
