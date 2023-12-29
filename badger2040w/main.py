@@ -67,9 +67,10 @@ def setup_mode():
     found_wifi_networks = {}
     
     for n in networks:
+        print(n[0])
         ssid = n[0].decode()
+        print(f"network '{ssid}'")
         if len(ssid) > 0:
-            ssid = n[0].decode()
             rssi = n[3]
             if ssid in found_wifi_networks:
                 if found_wifi_networks[ssid] < rssi:
