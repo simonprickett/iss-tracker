@@ -48,6 +48,12 @@ ISS_SERVICE_PASSPHRASE="YOUR CLOUD FUNCTION ACCESS TOKEN HERE"
 
 Replace the placeholder text with one of the client passphrase values you configured when deploying your Google Cloud function.
 
+Give your device a unique ID so that it can be identified more easily in Google Cloud when it calls the Cloud Function to get the ISS position.  Replace this with your choice of device ID (e.g. `mydevice` or `1234`).
+
+```
+DEVICE_ID="YOUR DEVICE ID HERE"
+```
+
 ### Setup Process
 
 Reset the Badger 2040w to start the setup process.  It should start up and expose a WiFi access point whose SSID is "ISSTracker".
