@@ -15,7 +15,10 @@
                     <p>You&apos;ll need your network name or SSID and password.</p>
                     <p><b>These are case sensitive, so be sure to enter them correctly.</b></p>
                     <label for="ssid">SSID:</label>
-                    <input type="text" id="ssid" name="ssid" placeholder="WiFi SSID" required>
+                    <select name="ssid" id="ssid">
+                        {{"" if len(wifis) == 0 else "".join(["""<option value="{0}">{0}</option>""".format(w[0]) for w in wifis])}}                        
+                        <option value="other">Other...</option>
+                    </select>
                     <span class="pure-form-message">This is a required field.</span>
                     <label for="password">Password:</label>
                     <input type="text" id="password" name="password" placeholder="WiFi Password" required>
