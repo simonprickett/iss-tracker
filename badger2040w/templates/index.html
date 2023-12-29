@@ -15,11 +15,11 @@
                     <p>You&apos;ll need your network name or SSID and password.</p>
                     <p><b>These are case sensitive, so be sure to enter them correctly.</b></p>
                     <label for="ssid">SSID:</label>
-                    <select name="ssid" id="ssid" onchange="ssidChanged()">
+                    <select id="ssidselect" onchange="ssidChanged()">
                         {{"" if len(wifis) == 0 else "".join(["""<option value="{0}">{0}</option>""".format(w[0]) for w in wifis])}}                        
                         <option value="other">Other...</option>
                     </select>
-                    <input type="text" id="otherssid" name="otherssid" placeholder="WiFi SSID" hidden>
+                    <input type="text" id="ssid" name="ssid" placeholder="WiFi SSID" value="{{"" if len(wifis) == 0 else wifis[0][0]}}" hidden required>
                     <span class="pure-form-message">This is a required field.</span>
                     <label for="password">Password:</label>
                     <input type="text" id="password" name="password" placeholder="WiFi Password" required>
@@ -42,13 +42,14 @@
         </div>
         <script>
             function ssidChanged() {
-                const selectedSSID = document.getElementById('ssid').value;
-                const otherSSIDElem = document.getElementById('otherssid');
+                const selectedSSID = document.getElementById('ssidselect').value;
+                const ssidElem = document.getElementById('ssid');
                 if (selectedSSID === 'other') {
-                    otherSSIDElem.hidden = false;
+                    ssidElem.value = '';
+                    ssidElem.hidden = false;
                 } else {
-                    otherSSIDElem.hidden = true;
-                    otherSSIDElem.value = '';
+                    ssidElem.hidden = true;                    
+                    ssidElem.value = selectedSSID;
                 }
             }
                         
