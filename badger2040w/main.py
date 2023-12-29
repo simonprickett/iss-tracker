@@ -60,11 +60,31 @@ def setup_mode():
     display_centered("Connect to WiFi network", 35, 2)
     display_centered(config.AP_NAME, 70, 3)
     
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    networks = wlan.scan()
+    
+    found_wifi_networks = {}
+    
+    for n in networks:
+        ssid = n[0].decode().strip('\x00')
+        # TODO remove this when satisfied.
+        print(f"network '{ssid}'")
+        if len(ssid) > 0:
+            rssi = n[3]
+            if ssid in found_wifi_networks:
+                if found_wifi_networks[ssid] < rssi:
+                    found_wifi_networks[ssid] = rssi
+            else:
+                found_wifi_networks[ssid] = rssi
+
+    wifi_networks_by_strength = sorted(found_wifi_networks.items(), key = lambda x:x[1], reverse = True)
+
     def ap_index(request):
         if request.headers.get("host").lower() != config.AP_DOMAIN.lower():
             return render_template(f"{TEMPLATE_PATH}/redirect.html", domain = config.AP_DOMAIN.lower())
-
-        return render_template(f"{TEMPLATE_PATH}/index.html", lat = str(config.DEFAULT_LATITUDE), lng = str(config.DEFAULT_LONGITUDE), loc = config.DEFAULT_PLACE)
+                
+        return render_template(f"{TEMPLATE_PATH}/index.html", lat = str(config.DEFAULT_LATITUDE), lng = str(config.DEFAULT_LONGITUDE), loc = config.DEFAULT_PLACE, wifis = wifi_networks_by_strength)
 
     def ap_configure(request):
         print("Saving wifi credentials...")
