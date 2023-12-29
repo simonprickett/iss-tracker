@@ -324,7 +324,7 @@ try:
 
             try:
                 iss_data = urequests.get(
-                    f"{config.ISS_SERVICE_URL}?lat={wifi_credentials['lat']}&lng={wifi_credentials['lng']}",
+                    f"{config.ISS_SERVICE_URL}?deviceid={config.DEVICE_ID}&lat={wifi_credentials['lat']}&lng={wifi_credentials['lng']}",
                     headers = {
                         "X-ISS-Locator-Token": config.ISS_SERVICE_PASSPHRASE
                     }

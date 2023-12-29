@@ -12,6 +12,8 @@ DEFAULT_PLACE="Nottingham England"
 ISS_SERVICE_URL="YOUR CLOUD FUNCTION URL HERE"
 # Passphrase for the ISS information service.
 ISS_SERVICE_PASSPHRASE="YOUR CLOUD FUNCTION ACCESS TOKEN HERE"
+# String that you can use to identify calls made by this device to the cloud function.
+DEVICE_ID="YOUR DEVICE ID HERE"
 # Initial access point name and domain
 AP_NAME = "ISSTracker"
 AP_DOMAIN = "isstracker.net"
