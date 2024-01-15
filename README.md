@@ -4,7 +4,7 @@ TODO introduction and architecture.
 
 TODO picture of it running on a Badger2040w.
 
-I'm going to be doing a live stram about this project on Wednesday 17th January 2024 at 10:30am UTC.  [Watch it here](https://www.youtube.com/watch?v=zSsMsijupz0) and don't forget to subscribe and get notified whenever I'm live.  Thanks!
+I'm going to be doing a live stream about this project on Wednesday 17th January 2024 at 10:30am UTC.  [Watch it here](https://www.youtube.com/watch?v=zSsMsijupz0) and don't forget to subscribe and get notified whenever I'm live.  Thanks!
 
 ## Back End Cloud Function
 
