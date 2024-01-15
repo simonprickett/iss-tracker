@@ -2,7 +2,9 @@
 
 TODO introduction and architecture.
 
-TODO picture of it running on a Badger2040w.
+Here it is running on the Badger 2040w device...
+
+![Project running on a Badger 2040w device](running_on_badger.jpg)
 
 I'm going to be doing a live stream about this project on Wednesday 17th January 2024 at 10:30am UTC.  [Watch it here](https://www.youtube.com/watch?v=zSsMsijupz0) and don't forget to subscribe and get notified whenever I'm live.  Thanks!
 
