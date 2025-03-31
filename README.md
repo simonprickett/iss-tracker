@@ -8,6 +8,8 @@ Here it is running on the Badger 2040w device...
 
 I did a live stream about this project: [Watch it here](https://www.youtube.com/watch?v=zSsMsijupz0) and don't forget to subscribe and get notified whenever I'm live.  Thanks!
 
+There's also a CircuitPython project by Aaron Pendley that's inspired by this and does some things better than my version.  It runs on the Adafruit MagTag, see pictures of it and check out the source code [here](https://github.com/apendley/magtag-iss-tracker).
+
 ## Back End Cloud Function
 
 TODO
